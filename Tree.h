@@ -54,7 +54,6 @@ struct TreeNode {
          }
     }
     TreeNode* levelOrder(TreeNode* root, std::vector<int>& out) {
-        std::stack<TreeNode*> stack;
         std::queue<TreeNode*> queue;
         TreeNode* curr = root;
         queue.push(curr);

@@ -113,19 +113,58 @@ std::vector<size_t> z_function(const std::string& str) {
 std::vector<size_t> fast_z_function(const std::string& str) {
     size_t n = str.size();
     std::vector<size_t> z(n, 0);
-    for(size_t i = 1, l = 0, r = 0; i < n; ++i) {
-        if(i <= r) {
-            z[i] = std::min(r-i+1, z[i-1]);
+    for(size_t i = 1, left = 0, right = 0; i < n; ++i) {
+        if(i <= right) {
+            z[i] = std::min(right-i+1, z[i-left]);
         }
         while(i+z[i] < n && str[z[i]] == str[i+z[i]])
             ++z[i];
-        if(i+z[i]-1 > r) {
-            l = i;
-            r = i + z[i]-1;
+        if(i+z[i]-1 > right) {
+            left = i;
+            right = i + z[i]-1;
         }
     }
     return z;
 }
+
+std::vector<size_t> find_z(const std::string& word, const std::string& string) {
+    std::vector<size_t> index(fast_z_function(word + '#' + string));
+    std::vector<size_t> out;
+    for(auto i = 0; i < index.size(); ++i) {
+        if(index[i] == word.size()) {
+            out.push_back(i);
+        }
+    }
+    return out;
+}
+
+std::pair<size_t, size_t> maxSum(const std::vector<int>& lhs, const std::vector<int>& rhs) {
+
+    std::pair<size_t, size_t> out{0,0};
+    int max_l{INT_MIN};
+    std::pair<size_t, int> max_r_buffer{0, INT_MIN};
+    bool wait = false;
+    for(size_t i = 0; i < lhs.size(); ++i) {
+        if(rhs[i] > max_r_buffer.second) {
+            max_r_buffer = {i,rhs[i]};
+            wait = true;
+            if(i < out.second) out.first = i;
+        }
+        if(lhs[i] > max_l) {
+            max_l = lhs[i];
+            out.second = i;
+            if(wait) {
+                if(i > max_r_buffer.first) {
+                    wait = false;
+                    out.first = max_r_buffer.first;
+                }
+            }
+        }
+    }
+
+    return out;
+}
+
 
 int main()
 {
@@ -147,13 +186,20 @@ int main()
 //    g.primMST();
 
 
-//    std::string s = "choose";
-//    std::string t = "choose life. choose a job. choose a career. choose a family. choose a fu...";
+    std::string s = "cho?se";
+    std::string t = "chopse life. chotse a job. chotse a career. chopse a family. chopse a fu...";
 //    std::string s1 = "abcabcd";
 //    printVector(fast_prefix(s1));
     std::string s2 = "aaabaab";
-    printVector(z_function(s2));
-    printVector(fast_z_function(s2));
-//    printVector(find(s, t));
+//    printVector(z_function(s2));
+//    printVector(fast_z_function(s2));
+//    printVector(fast_z_function(s + '#'+t));
+//    printVector(find_z(s, t));
+    //printVector(find(s, t));
+
+    std::vector<int> rhs = {1, 3, 4, 1};
+    std::vector<int> lhs = {1, 2, 1, 6};
+    auto index = maxSum(lhs, rhs);
+    std::cout << index.first << ' ' << index.second << std::endl;
     return 0;     
 }
